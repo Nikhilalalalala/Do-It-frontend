@@ -1,5 +1,6 @@
 import 'package:doit/Dashboard/DashboardPage.dart';
 import 'package:doit/AddNewGoal/AddNewGoalPage.dart';
+import 'package:doit/PageContainer/PageContainer.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,12 +16,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: DashboardPage(),
-      initialRoute: "/DashboardPage",
-      routes: {
-        '/DashboardPage': (context) => DashboardPage(),
-        '/AddNewGoalPage': (context) => AddNewGoalPage(),
-      },
+      home: PageContainer(),
+      // initialRoute: "/DashboardPage",
+      // routes: {
+      //   '/DashboardPage': (context) => DashboardPage(),
+      //   '/AddNewGoalPage': (context) => AddNewGoalPage(),
+      // },
     );
   }
 }
