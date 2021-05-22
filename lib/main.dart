@@ -1,7 +1,8 @@
-import 'package:doit/Dashboard/DashboardPage.dart';
-import 'package:doit/AddNewGoal/AddNewGoalPage.dart';
+import 'package:doit/Login/LoginPage.dart';
 import 'package:doit/PageContainer/PageContainer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:doit/Login/AuthRepository.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,7 +17,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: PageContainer(),
+      home: RepositoryProvider(
+        create: (context) => AuthRepository(),
+        child: LoginPage(),
+        ),
       // initialRoute: "/DashboardPage",
       // routes: {
       //   '/DashboardPage': (context) => DashboardPage(),

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 
 class DashboardPage extends StatelessWidget {
 
+  final String baseUrl = "https://192.168.10.120:5000";
   Future<String> getData() async {
-    http.Response response = await http.post(
-        Uri.http("127.0.0.1:5000", "/addUser"),
+     http.Response response = await http.post(
+        Uri.http("10.0.2.2:5000", "/api/users"),
         headers: {
           "Accept": "application/json"
         },
@@ -33,7 +36,9 @@ class DashboardPage extends StatelessWidget {
           // Within the `FirstScreen` widget
           onPressed: () {
             // Navigate to the second screen using a named route.
-            getData().then((result) {
+            // createAlbum("Hello");
+            getData()
+                .then((result) {
               buttonWord = result;
             });
             // Navigator.pushNamed(context, '/AddNewGoalPage');
