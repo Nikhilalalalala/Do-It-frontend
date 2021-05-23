@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       ),
       home: RepositoryProvider(
         create: (context) => AuthRepository(),
-        child: LoginPage(),
+        child: PageContainer(),
         ),
       // initialRoute: "/DashboardPage",
       // routes: {
