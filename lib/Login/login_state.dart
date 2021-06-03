@@ -1,6 +1,7 @@
 part of 'login_bloc.dart';
 
-class LoginState {
+class LoginState extends Equatable {
+
   final String username;
   final String password;
   final FormSubmissionStatus formSubmissionStatus;
@@ -22,5 +23,19 @@ class LoginState {
       formSubmissionStatus: formSubmissionStatus ?? this.formSubmissionStatus,
     );
   }
+  @override
+  List<Object> get props => [username, password, formSubmissionStatus];
+}
 
+class LoginInitial extends LoginState {}
+
+class LoginSuccess extends LoginState {}
+
+class LoginFailure extends LoginState {
+  final String error;
+
+  LoginFailure({@required this.error});
+
+  @override
+  List<Object> get props => [error];
 }

@@ -1,11 +1,12 @@
-import 'package:doit/Login/AuthRepository.dart';
+import 'package:doit/Service/AuthRepository.dart';
+import 'package:doit/Auth/auth_bloc.dart';
 import 'package:doit/Login/login_bloc.dart';
+import 'package:doit/PageContainer/PageContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:doit/Common/FormSubmissionStatus.dart';
 
 class LoginPage extends StatelessWidget {
-
   Widget usernameField() {
     return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
       return TextFormField(
@@ -15,11 +16,14 @@ class LoginPage extends StatelessWidget {
             hintText: "Username",
             border:
             OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
-        validator: (value) => value.trim().length > 0 ? null : "Fill in all fields",
+        validator: (value) =>
+        value
+            .trim()
+            .length > 0 ? null : "Fill in all fields",
         onChanged: (value) =>
-            context.read<LoginBloc>().add(
-                LoginUsernameChanged(username: value)
-            ),
+            context
+                .read<LoginBloc>()
+                .add(LoginUsernameChanged(username: value)),
       );
     });
   }
@@ -31,43 +35,46 @@ class LoginPage extends StatelessWidget {
         decoration: InputDecoration(
             contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
             hintText: "Password",
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(32.0))),
-        validator: (value) => value.trim().length > 0 ? null : "Fill in all fields",
+            border:
+            OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+        validator: (value) =>
+        value
+            .trim()
+            .length > 0 ? null : "Fill in all fields",
         onChanged: (value) =>
-            context.read<LoginBloc>().add(
-                LoginPasswordChanged(password: value)
-            ),
+            context
+                .read<LoginBloc>()
+                .add(LoginPasswordChanged(password: value)),
       );
     });
   }
-
 
   Widget loginButton() {
     return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
       return state.formSubmissionStatus is FormSubmitting
           ? CircularProgressIndicator()
           : Material(
-              elevation: 5.0,
-              borderRadius: BorderRadius.circular(30.0),
-              color: Color(0xff01A0C7),
-              child: MaterialButton(
-                padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    context.read<LoginBloc>().add(LoginButtonClicked());
-                  }
-                },
-                child: Text("Login",
-                    textAlign: TextAlign.center,
-                    style: new TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-            );
+        elevation: 5.0,
+        borderRadius: BorderRadius.circular(30.0),
+        color: Color(0xff01A0C7),
+        child: MaterialButton(
+          padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          onPressed: () {
+            if (_formKey.currentState.validate()) {
+              context.read<LoginBloc>().add(LoginButtonClicked());
+            }
+          },
+          child: Text("Login",
+              textAlign: TextAlign.center,
+              style: new TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold)),
+        ),
+      );
     });
   }
 
-  final logo = Text("Do It!",
+  final logo = Text(
+    "Do It!",
     textAlign: TextAlign.center,
     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
     // style: style,
@@ -77,14 +84,14 @@ class LoginPage extends StatelessWidget {
 
   Widget _loginForm() {
     return BlocListener<LoginBloc, LoginState>(
-        listener: (context, state) {
-          final formSubmissionStatus = state.formSubmissionStatus;
-          if (formSubmissionStatus is SubmissionFailed) {
-            context.read<LoginBloc>().add(LoginSubmissionReset());
-            _showSnackBar(context, formSubmissionStatus.exception.toString());
-          }
-        },
-        child: Form(
+      listener: (context, state) {
+        final formSubmissionStatus = state.formSubmissionStatus;
+        if (formSubmissionStatus is SubmissionFailed) {
+          context.read<LoginBloc>().add(LoginSubmissionReset());
+          _showSnackBar(context, formSubmissionStatus.exception.toString());
+        }
+      },
+      child: Form(
           key: _formKey,
           child: Padding(
             padding: const EdgeInsets.all(36.0),
@@ -106,28 +113,46 @@ class LoginPage extends StatelessWidget {
                 ),
               ],
             ),
-          )
-      ),
+          )),
     );
-
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocProvider(
-        create: (context) =>
-            LoginBloc(
-              authRepo: context.read<AuthRepository>(),
-            ),
-        child: Center(
-          child: Container(
-              color: Colors.white,
-              child: _loginForm()
-          ),
-        ),
-      ),
+      body:
+      BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            final authBloc = BlocProvider.of<AuthBloc>(context);
+            // if (state is AuthUnauthenticated) {
+            //   return loginForm(context);
+            // }
+            // return Center(
+            //     child: CircularProgressIndicator(
+            //     strokeWidth: 2,
+            //     ),
+            // );
+            return loginForm(context);
+          })
+
     );
+  }
+
+  Widget loginForm(BuildContext context) {
+    final authService = RepositoryProvider.of<AuthService>(context);
+    final authBloc = BlocProvider.of<AuthBloc>(context);
+
+    return Container(
+        alignment: Alignment.center,
+        child: BlocProvider<LoginBloc>(
+          create: (context) => LoginBloc(authBloc, authService),
+          child:
+             Center(
+              child: Container(color: Colors.white, child: _loginForm()),
+            )
+          ),
+        );
   }
 
   void _showSnackBar(BuildContext context, String message) {

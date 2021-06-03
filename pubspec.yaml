@@ -31,7 +31,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   http: any
   dio: any
+  bloc: any
   flutter_bloc: any
+  flutter_secure_storage:
+  equatable: any
 
 dev_dependencies:
   flutter_test:
