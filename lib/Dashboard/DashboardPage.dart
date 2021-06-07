@@ -26,13 +26,6 @@ class TaskBox extends StatelessWidget {
               // TODO LEAD TO EDIT TASK
             },
             onLongPress: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NewTodoView()),
-              );
-              // BlocProvider.of<TodoCubit>(context)
-              //                     .createTodo(
-              //                     "name", "description");
               // TODO LEAD TO SHOW OPTIONS
             },
             child: Container(
