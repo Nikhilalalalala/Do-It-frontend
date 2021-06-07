@@ -246,7 +246,6 @@ class NewTodoViewState extends State<NewTodoView> {
                       if (formKey.currentState.validate()) {
                         showSnackBar(context, "Making your task");
                       }
-                      // context.bloc<TodoCubit>()
                       BlocProvider.of<TodoCubit>(context).createTodo(
                           taskNameController.text,
                           taskDescriptionController.text);
