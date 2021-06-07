@@ -21,7 +21,7 @@ class AuthService {
     }
   }
 
-  Future<String> getToken() async {
+  static Future<String> getToken() async {
     return await storage.read(key: 'token');
   }
 
@@ -35,24 +35,19 @@ class AuthService {
   }
 
   Future<String> login(String username, String password) async {
-    // http.Response response = await http.post(
-    //   Uri.http(mainUrl, "/api/auth"),
-    //   headers: {"Accept": "application/json"},
-    //   body: jsonEncode(<String,String>
-    //     {
-    //       "username": username,
-    //       "password": password
-    //     }),
-    // );
-    // Map<String, dynamic> responseJson = jsonDecode(response.body);
-    // print("Token upon login: " + responseJson.toString());
-    // return responseJson['token'];
-
-    await Future.delayed(Duration(seconds: 1)); // simulate a network delay
-    print(username);
-    return username;
+    http.Response response = await http.post(
+      Uri.http(mainUrl, "/api/auth"),
+      headers: {"Accept": "application/json"},
+      body: jsonEncode(<String,String>
+        {
+          "username": username,
+          "password": password
+        }),
+    );
+    Map<String, dynamic> responseJson = jsonDecode(response.body);
+    print("Token upon login: " + responseJson.toString());
+    return responseJson['token'];
+    // return "token";
   }
-
-
 }
 

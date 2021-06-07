@@ -60,7 +60,7 @@ class LoginPage extends StatelessWidget {
         child: MaterialButton(
           padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           onPressed: () {
-            if (_formKey.currentState.validate()) {
+            if (formKey.currentState.validate()) {
               context.read<LoginBloc>().add(LoginButtonClicked());
             }
           },
@@ -80,7 +80,7 @@ class LoginPage extends StatelessWidget {
     // style: style,
   );
 
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
   Widget _loginForm() {
     return BlocListener<LoginBloc, LoginState>(
@@ -88,11 +88,11 @@ class LoginPage extends StatelessWidget {
         final formSubmissionStatus = state.formSubmissionStatus;
         if (formSubmissionStatus is SubmissionFailed) {
           context.read<LoginBloc>().add(LoginSubmissionReset());
-          _showSnackBar(context, formSubmissionStatus.exception.toString());
+          showSnackBar(context, formSubmissionStatus.exception.toString());
         }
       },
       child: Form(
-          key: _formKey,
+          key: formKey,
           child: Padding(
             padding: const EdgeInsets.all(36.0),
             child: Column(
@@ -124,15 +124,6 @@ class LoginPage extends StatelessWidget {
       body:
       BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            final authBloc = BlocProvider.of<AuthBloc>(context);
-            // if (state is AuthUnauthenticated) {
-            //   return loginForm(context);
-            // }
-            // return Center(
-            //     child: CircularProgressIndicator(
-            //     strokeWidth: 2,
-            //     ),
-            // );
             return loginForm(context);
           })
 
@@ -155,7 +146,7 @@ class LoginPage extends StatelessWidget {
         );
   }
 
-  void _showSnackBar(BuildContext context, String message) {
+  void showSnackBar(BuildContext context, String message) {
     final snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
