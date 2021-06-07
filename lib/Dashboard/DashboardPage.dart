@@ -26,6 +26,13 @@ class TaskBox extends StatelessWidget {
               // TODO LEAD TO EDIT TASK
             },
             onLongPress: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NewTodoView()),
+              );
+              // BlocProvider.of<TodoCubit>(context)
+              //                     .createTodo(
+              //                     "name", "description");
               // TODO LEAD TO SHOW OPTIONS
             },
             child: Container(
@@ -84,42 +91,29 @@ class DashboardPage extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       child: BlocProvider(
-          create: (context) => TodoCubit()..getTodos(),
-          child: Center(
-            child: Container(color: Colors.white, child: TasksView()),
-          )),
+        create: (context) => TodoCubit()..getTodos(),
+        child: TasksView(),
+      ),
     );
   }
 }
 
-class TasksView extends StatefulWidget {
-  @override
-  TasksViewState createState() {
-    return TasksViewState();
-  }
-}
-
-class TasksViewState extends State<TasksView> {
-  final formKey = GlobalKey<FormState>();
-  final taskNameController = TextEditingController();
-  final taskDescriptionController = TextEditingController();
-
+class TasksView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // drawer: SideBar(),
-      appBar: AppBar(
-        title: Text('Dashboard'),
-      ),
       body: BlocBuilder<TodoCubit, TodoState>(
         builder: (context, state) {
           if (state is ListTodosSuccess) {
             if (state.todos.length > 0) {
               return Scaffold(
+                appBar: AppBar(
+                  title: Text('Dashboard'),
+                ),
                 body: Container(
                     margin: EdgeInsets.only(top: 5),
                     child: ListView(children: createTaskList(state.todos))),
-                floatingActionButton: floatingActionButton(context),
               );
             } else {
               return emptyTodoListView();
@@ -128,12 +122,27 @@ class TasksViewState extends State<TasksView> {
             return Center(
               child: exceptionView(state.exception),
             );
+          } else if (state is CreateNewTodo) {
+            return NewTodoView();
           } else {
-            return Center(
-              child: CircularProgressIndicator(),
+            return Scaffold(
+              appBar: AppBar(
+                title: Text('Dashboard'),
+              ),
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
             );
           }
         },
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          BlocProvider.of<TodoCubit>(context).intentionToCreateNewTodo();
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blueAccent,
       ),
     );
   }
@@ -143,72 +152,6 @@ class TasksViewState extends State<TasksView> {
     return progress != null
         ? TaskBox(title, id, isDone, progress: progress)
         : TaskBox(title, id, isDone, progress: 0);
-  }
-
-  Widget newTodoView(BuildContext context) {
-    return Form(
-        key: formKey,
-        child: Column(
-          children: [
-            TextFormField(
-              controller: taskNameController,
-              decoration: InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                  hintText: "Name of Task",
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(32.0))),
-              validator: (value) => value.trim().length > 0
-                  ? null
-                  : "Please give a name to the task",
-            ),
-            TextFormField(
-              controller: taskDescriptionController,
-              decoration: InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                  hintText: "Description",
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(32.0))),
-            ),
-            Material(
-              elevation: 5.0,
-              borderRadius: BorderRadius.circular(30.0),
-              color: Color(0xff01A0C7),
-              child: MaterialButton(
-                padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                onPressed: () {
-                  if (formKey.currentState.validate()) {
-                    showSnackBar(context, "Making your task");
-                  }
-                  BlocProvider.of<TodoCubit>(context).createTodo(
-                      taskNameController.text, taskDescriptionController.text);
-                  taskNameController.text = '';
-                  taskDescriptionController.text = '';
-                  Navigator.of(context).pop();
-                },
-                child: Text("Save Task",
-                    textAlign: TextAlign.center,
-                    style: new TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
-            ),
-          ],
-        ));
-  }
-
-  void showSnackBar(BuildContext context, String message) {
-    final snackBar = SnackBar(content: Text(message));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
-  Widget floatingActionButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        showModalBottomSheet(
-            context: context, builder: (context) => newTodoView(context));
-      },
-      child: const Icon(Icons.add),
-      backgroundColor: Colors.blueAccent,
-    );
   }
 
   List<Widget> createTaskList(List<Todo> todos) {
@@ -226,6 +169,104 @@ class TasksViewState extends State<TasksView> {
   Widget emptyTodoListView() {
     return Center(child: Text("You have no Tasks yet!"));
   }
+}
+
+class NewTodoView extends StatefulWidget {
+  @override
+  NewTodoViewState createState() {
+    return NewTodoViewState();
+  }
+}
+
+class NewTodoViewState extends State<NewTodoView> {
+  final formKey = GlobalKey<FormState>();
+  final taskNameController = TextEditingController();
+  final taskDescriptionController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios),
+            iconSize: 20.0,
+            onPressed: () {
+              BlocProvider.of<TodoCubit>(context).getTodos();
+            },
+          ),
+          title: Text('Add New Task'),
+        ),
+        body: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                SizedBox(height: 15.0),
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.95,
+                    child: TextFormField(
+                      controller: taskNameController,
+                      decoration: InputDecoration(
+                          contentPadding:
+                              EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                          hintText: "Name of Task",
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(32.0))),
+                      validator: (value) => value.trim().length > 0
+                          ? null
+                          : "Please give a name to the task",
+                    ),
+                  ),
+                ),
+                SizedBox(height: 15.0),
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.95,
+                    child: TextFormField(
+                      controller: taskDescriptionController,
+                      decoration: InputDecoration(
+                          contentPadding:
+                              EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                          hintText: "Description",
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(32.0))),
+                      minLines: 4,
+                      maxLines: 6,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 15.0),
+                Material(
+                  elevation: 5.0,
+                  borderRadius: BorderRadius.circular(30.0),
+                  color: Color(0xff01A0C7),
+                  child: MaterialButton(
+                    padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                    onPressed: () {
+                      if (formKey.currentState.validate()) {
+                        showSnackBar(context, "Making your task");
+                      }
+                      // context.bloc<TodoCubit>()
+                      BlocProvider.of<TodoCubit>(context).createTodo(
+                          taskNameController.text,
+                          taskDescriptionController.text);
+                      taskNameController.text = '';
+                      taskDescriptionController.text = '';
+                    },
+                    child: Text("Save Task",
+                        textAlign: TextAlign.center,
+                        style: new TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            )));
+  }
+
+  void showSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
   @override
   void dispose() {
@@ -235,16 +276,3 @@ class TasksViewState extends State<TasksView> {
     super.dispose();
   }
 }
-
-// ElevatedButton(
-//   // Within the `FirstScreen` widget
-//   onPressed: () {
-//     // Navigate to the second screen using a named route.
-//     // createAlbum("Hello");
-//     getData()
-//         .then((result) {
-//       buttonWord = result;
-//     });
-//     // Navigator.pushNamed(context, '/AddNewGoalPage');
-//   },
-//   child: Text('Add New Goal'),

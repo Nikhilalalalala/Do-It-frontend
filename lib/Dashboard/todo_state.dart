@@ -19,3 +19,5 @@ class ListTodosFailure extends TodoState {
 
 class TodoInitial extends TodoState {}
 
+class CreateNewTodo extends TodoState {}
+

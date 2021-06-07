@@ -25,5 +25,11 @@ class TodoCubit extends Cubit<TodoState> {
     date_goal != null
         ? todoRepository.createTodo(name, description, date_goal: date_goal)
         : todoRepository.createTodo(name, description);
+    getTodos();
   }
+
+  void intentionToCreateNewTodo() {
+    emit(CreateNewTodo());
+  }
+
 }

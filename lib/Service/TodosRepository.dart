@@ -75,14 +75,14 @@ class Todo {
       return {
         "name": this.name,
         "description": this.description,
-        "isDone": this.isDone,
+        "isDone": this.isDone.toString(),
         "dateGoal": this.dateGoal
       };
     } else {
       return {
         "name": this.name,
         "description": this.description,
-        "isDone": this.isDone,
+        "isDone": this.isDone.toString(),
       };
     }
   }
@@ -135,14 +135,16 @@ class TodoRepository {
 
   void createTodo(String name, String description, {String date_goal}) async {
     String token = await AuthService.getToken();
+    print(new Todo(name: name, description: description, dateGoal: date_goal).toDatabaseJson());
     http.Response response = await http.post(
       Uri.http(mainUrl, "/api/tasks"),
       headers: {
         "Accept": "application/json",
         "x-access-token": token,
       },
-      body: new Todo(name: name, description: description, dateGoal: date_goal).toDatabaseJson()
+      body: jsonEncode(new Todo(name: name, description: description, dateGoal: date_goal).toDatabaseJson())
     );
+    print(response.statusCode);
   }
 
 }
