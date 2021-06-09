@@ -32,4 +32,13 @@ class TodoCubit extends Cubit<TodoState> {
     emit(CreateNewTodo());
   }
 
+  void updateTodoIsComplete(Todo todo, bool isComplete) async {
+    await todoRepository.updateTodoIsDone(todo, isComplete);
+    getTodos();
+  }
+  void deleteTodo(Todo todo) async {
+    await todoRepository.deleteTodo(todo);
+    getTodos();
+  }
+
 }

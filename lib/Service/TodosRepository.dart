@@ -1,60 +1,15 @@
-// import 'package:equatable/equatable.dart';
-// import 'package:meta/meta.dart';
-//
-// @immutable
-// class Todo extends Equatable {
-//   final String name;
-//   final bool isDone;
-//   final String description;
-//   final String date_goal;
-
-//
-//   Todo(this.name, {this.isDone = false, String description = '', String date_goal =''})
-//       : this.name = name ?? 'Untitled Task',
-//         super();
-//
-//
-//   Todo copyWith({ String name, bool isDone, String description, String date_goal}) {
-//     return Todo(
-//       name ?? this.name,
-//       isDone: isDone ?? this.isDone,
-//       description: description ?? this.description,
-//       date_goal: date_goal ?? this.date_goal,
-//     );
-//   }
-//
-//
-//   @override
-//   String toString() {
-//     return 'Todo { complete: $complete, task: $task, note: $note, id: $id }';
-//   }
-//
-//
-//   TodoEntity toEntity() {
-//     return TodoEntity(task, id, note, complete);
-//   }
-//
-//
-//   static Todo fromEntity(TodoEntity entity) {
-//     return Todo(
-//       entity.task,
-//       complete: entity.complete ?? false,
-//       note: entity.note,
-//       id: entity.id ?? Uuid().generateV4(),
-//     );
-//   }
-// }
-
+import 'dart:core';
 import 'package:doit/Service/AuthRepository.dart';
 import "dart:convert";
 import "package:http/http.dart" as http;
+import "dart:math" as Math;
 
 class Todo {
-  final String id;
-  final String name;
-  final String description;
-  final bool isDone;
-  final String dateGoal;
+  String id;
+  String name;
+  String description;
+  bool isDone;
+  String dateGoal;
 
   Todo(
       {this.id = '',
@@ -67,12 +22,13 @@ class Todo {
       id: data['id'],
       name: data['name'],
       description: data['description'],
-      isDone: data['isDone'],
+      isDone: data['isDone'] == null ? false : data['isDone'],
       dateGoal: data['dateGoal'] ?? null);
 
   Map<String, dynamic> toDatabaseJson() {
     if (this.dateGoal != null) {
       return {
+        "id" : id,
         "name": this.name,
         "description": this.description,
         "isDone": this.isDone.toString(),
@@ -80,6 +36,7 @@ class Todo {
       };
     } else {
       return {
+        "id" : id,
         "name": this.name,
         "description": this.description,
         "isDone": this.isDone.toString(),
@@ -91,17 +48,30 @@ class Todo {
     return name;
   }
   String getId() {
-    return name;
+    return id;
+  }
+  bool getIsDone() {
+    return isDone;
   }
   String getDescription() {
-    return name;
+    return description;
   }
-
+  String getDateGoal() {
+    return dateGoal;
+  }
+  double getProgress() {
+    double progress = Math.Random.secure().nextDouble();
+    return progress;
+  }
+  void setIsDone(bool newValue) {
+    this.isDone = newValue;
+  }
 
   @override
   String toString() {
-    return "Task: $name, $description, IsDONE? $isDone, doBy: $dateGoal";
+    return "Task: $name, $description, isDone? $isDone, dateGoal: $dateGoal";
   }
+
 }
 
 class TodoRepository {
@@ -119,17 +89,15 @@ class TodoRepository {
     );
 
     Map<String, dynamic> responseJson = jsonDecode(response.body);
+    print(responseJson);
     if (response.statusCode == 200) {
-      print(responseJson);
-      print(responseJson["tasks"]);
       List<dynamic> todoListJson = jsonDecode(responseJson["tasks"]);
-      print(todoListJson);
       todoListJson.forEach((element) {
-        print(element.toString());
         todoList.add(Todo.fromDatabaseJson(element));
       });
     }
-    print("Todolist: " + todoList.toString());
+    print("received todo list");
+    print(todoList);
     return todoList;
   }
 
@@ -144,7 +112,37 @@ class TodoRepository {
       },
       body: jsonEncode(new Todo(name: name, description: description, dateGoal: date_goal).toDatabaseJson())
     );
-    print(response.statusCode);
+    print("Created Todo" + response.statusCode.toString());
+  }
+
+  void updateTodoIsDone(Todo todo, bool isDone) async {
+    String token = await AuthService.getToken();
+    todo.setIsDone(isDone);
+    http.Response response = await http.put(
+        Uri.http(mainUrl, "/api/tasks"),
+        headers: {
+          "Accept": "application/json",
+          "x-access-token": token,
+        },
+        body: jsonEncode(todo.toDatabaseJson())
+    );
+    print("Sending req to update todo \n" +  jsonEncode(todo.toDatabaseJson()).toString());
+    print("Set isDone" + response.statusCode.toString());
+  }
+
+  void deleteTodo(Todo todo) async {
+    print("sent delete request");
+    String token = await AuthService.getToken();
+    String id = todo.getId();
+    http.Response response = await http.delete(
+        Uri.http(mainUrl, "/api/tasks"),
+        headers: {
+          "Accept": "application/json",
+          "x-access-token": token,
+        },
+        body: jsonEncode({"id" : todo.getId()})
+    );
+    print(response);
   }
 
 }

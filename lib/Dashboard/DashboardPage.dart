@@ -8,18 +8,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class TaskBox extends StatelessWidget {
-  String title;
-  String id;
-  bool isDone;
-  double progress = 0;
+  Todo todo;
+
 
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-        key: Key(id),
+        key: Key(todo.getId()),
         background: Container(color: Colors.red),
         onDismissed: (direction) {
-          //  TODO DELETE THE TASK
+          BlocProvider.of<TodoCubit>(context).deleteTodo(todo);
         },
         child: GestureDetector(
             onTap: () {
@@ -33,10 +31,10 @@ class TaskBox extends StatelessWidget {
                 height: 50,
                 child: Row(children: [
                   Checkbox(
-                    value: this.isDone,
-                    // onChanged: (bool value) {
-                    //   TODO MARK THE TASK DONE
-                  ),
+                    value: todo.getIsDone(),
+                    onChanged: (bool value) {
+                      BlocProvider.of<TodoCubit>(context).updateTodoIsComplete(todo, value);
+                  }),
                   Expanded(
                     child: Container(
                       margin: EdgeInsets.only(left: 10, right: 10),
@@ -48,9 +46,9 @@ class TaskBox extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
-                              title,
+                              todo.getName(),
                               textDirection: TextDirection.ltr,
-                              style: isDone
+                              style: todo.getIsDone()
                                   ? TextStyle(
                                       fontSize: 20,
                                       color: Colors.black,
@@ -62,7 +60,7 @@ class TaskBox extends StatelessWidget {
                                     ),
                             ),
                             CircularProgressIndicator(
-                              value: progress,
+                              value: todo.getProgress(),
                             )
                           ]),
                     ),
@@ -70,11 +68,8 @@ class TaskBox extends StatelessWidget {
                 ]))));
   }
 
-  TaskBox(String title, String id, bool isDone, {double progress}) {
-    this.title = title;
-    this.id = id;
-    this.isDone = isDone == null ? false : isDone;
-    this.progress = progress;
+  TaskBox(Todo todo) {
+    this.todo = todo;
   }
 }
 
@@ -140,17 +135,10 @@ class TasksView extends StatelessWidget {
     );
   }
 
-  Widget createTaskBox(String title, String id, bool isDone,
-      {double progress}) {
-    return progress != null
-        ? TaskBox(title, id, isDone, progress: progress)
-        : TaskBox(title, id, isDone, progress: 0);
-  }
-
   List<Widget> createTaskList(List<Todo> todos) {
     List<Widget> tasks = [];
     todos.forEach((element) {
-      tasks.add(createTaskBox(element.name, element.id, element.isDone));
+      tasks.add(TaskBox(element));
     });
     return tasks;
   }
