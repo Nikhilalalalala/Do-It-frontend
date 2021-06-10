@@ -41,4 +41,13 @@ class TodoCubit extends Cubit<TodoState> {
     getTodos();
   }
 
+  void updateTodoNameAndDescription(Todo todo, String name, String description) async {
+    await todoRepository.updateTodoNameAndDescription(todo, name, description);
+    getTodos();
+  }
+
+  void intentionToEditTodo(Todo todo) {
+    emit(EditTodo(todo: todo));
+  }
+
 }

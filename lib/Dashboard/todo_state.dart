@@ -21,3 +21,10 @@ class TodoInitial extends TodoState {}
 
 class CreateNewTodo extends TodoState {}
 
+class EditTodo extends TodoState {
+  final Todo todo;
+
+  EditTodo({this.todo});
+}
+
+

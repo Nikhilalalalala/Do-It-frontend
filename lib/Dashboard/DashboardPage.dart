@@ -1,3 +1,4 @@
+import 'package:doit/Dashboard/EditTodoView.dart';
 import 'package:doit/Dashboard/todo_cubit.dart';
 import 'package:doit/Service/TodosRepository.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,9 @@ import 'NewTodoView.dart';
 class TaskBox extends StatelessWidget {
   Todo todo;
 
+  TaskBox(Todo todo) {
+    this.todo = todo;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +23,8 @@ class TaskBox extends StatelessWidget {
         },
         child: GestureDetector(
             onTap: () {
-              // TODO LEAD TO EDIT TASK
+              BlocProvider.of<TodoCubit>(context).intentionToEditTodo(
+                  this.todo);
             },
             onLongPress: () {
               // TODO LEAD TO SHOW OPTIONS
@@ -29,10 +34,11 @@ class TaskBox extends StatelessWidget {
                 height: 50,
                 child: Row(children: [
                   Checkbox(
-                    value: todo.getIsDone(),
-                    onChanged: (bool value) {
-                      BlocProvider.of<TodoCubit>(context).updateTodoIsComplete(todo, value);
-                  }),
+                      value: todo.getIsDone(),
+                      onChanged: (bool value) {
+                        BlocProvider.of<TodoCubit>(context)
+                            .updateTodoIsComplete(todo, value);
+                      }),
                   Expanded(
                     child: Container(
                       margin: EdgeInsets.only(left: 10, right: 10),
@@ -48,14 +54,14 @@ class TaskBox extends StatelessWidget {
                               textDirection: TextDirection.ltr,
                               style: todo.getIsDone()
                                   ? TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                      decoration: TextDecoration.lineThrough,
-                                    )
+                                fontSize: 20,
+                                color: Colors.black,
+                                decoration: TextDecoration.lineThrough,
+                              )
                                   : TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                    ),
+                                fontSize: 20,
+                                color: Colors.black,
+                              ),
                             ),
                             CircularProgressIndicator(
                               value: todo.getProgress(),
@@ -65,10 +71,6 @@ class TaskBox extends StatelessWidget {
                   )
                 ]))));
   }
-
-  TaskBox(Todo todo) {
-    this.todo = todo;
-  }
 }
 
 class DashboardPage extends StatelessWidget {
@@ -77,7 +79,9 @@ class DashboardPage extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       child: BlocProvider(
-        create: (context) => TodoCubit()..getTodos(),
+        create: (context) =>
+        TodoCubit()
+          ..getTodos(),
         child: TasksView(),
       ),
     );
@@ -100,9 +104,18 @@ class TasksView extends StatelessWidget {
                 body: Container(
                     margin: EdgeInsets.only(top: 5),
                     child: ListView(children: createTaskList(state.todos))),
+
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () {
+                    BlocProvider.of<TodoCubit>(context)
+                        .intentionToCreateNewTodo();
+                  },
+                  child: const Icon(Icons.add),
+                  backgroundColor: Colors.blueAccent,
+                ),
               );
             } else {
-              return emptyTodoListView();
+              return emptyTodoListView(context);
             }
           } else if (state is ListTodosFailure) {
             return Center(
@@ -110,6 +123,8 @@ class TasksView extends StatelessWidget {
             );
           } else if (state is CreateNewTodo) {
             return NewTodoView();
+          } else if (state is EditTodo) {
+            return EditTodoView(state.todo);
           } else {
             return Scaffold(
               appBar: AppBar(
@@ -123,13 +138,6 @@ class TasksView extends StatelessWidget {
         },
       ),
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          BlocProvider.of<TodoCubit>(context).intentionToCreateNewTodo();
-        },
-        child: const Icon(Icons.add),
-        backgroundColor: Colors.blueAccent,
-      ),
     );
   }
 
@@ -145,7 +153,21 @@ class TasksView extends StatelessWidget {
     return Center(child: Text(e.toString()));
   }
 
-  Widget emptyTodoListView() {
-    return Center(child: Text("You have no Tasks yet!"));
+  Widget emptyTodoListView(context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Dashboard'),
+      ),
+      body: Center(child: Text("You have no Tasks yet!")),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          BlocProvider.of<TodoCubit>(context).intentionToCreateNewTodo();
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blueAccent,
+      ),
+    );
   }
 }
+

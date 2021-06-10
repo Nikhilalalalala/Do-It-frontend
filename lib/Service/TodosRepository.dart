@@ -169,4 +169,10 @@ class TodoRepository {
     print(response);
   }
 
+  void updateTodoNameAndDescription(Todo todo, String name, String description) {
+    todo.setDescription(description);
+    todo.setName(name);
+    updateTodo(todo);
+  }
+
 }
