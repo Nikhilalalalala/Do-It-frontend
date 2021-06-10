@@ -67,6 +67,14 @@ class Todo {
     this.isDone = newValue;
   }
 
+  void setName(String name) {
+    this.name = name;
+  }
+
+  void setDescription(String description) {
+    this.description = description;
+  }
+
   @override
   String toString() {
     return "Task: $name, $description, isDone? $isDone, dateGoal: $dateGoal";
@@ -118,6 +126,23 @@ class TodoRepository {
   void updateTodoIsDone(Todo todo, bool isDone) async {
     String token = await AuthService.getToken();
     todo.setIsDone(isDone);
+    updateTodo(todo);
+  }
+
+  void updateTodoName(Todo todo, String newName)async {
+    String token = await AuthService.getToken();
+    todo.setName(newName);
+    updateTodo(todo);
+  }
+
+  void updateTodoDescription(Todo todo, String newDescription)async {
+    String token = await AuthService.getToken();
+    todo.setDescription(newDescription);
+    updateTodo(todo);
+  }
+
+  void updateTodo(Todo todo) async {
+    String token = await AuthService.getToken();
     http.Response response = await http.put(
         Uri.http(mainUrl, "/api/tasks"),
         headers: {
@@ -127,7 +152,6 @@ class TodoRepository {
         body: jsonEncode(todo.toDatabaseJson())
     );
     print("Sending req to update todo \n" +  jsonEncode(todo.toDatabaseJson()).toString());
-    print("Set isDone" + response.statusCode.toString());
   }
 
   void deleteTodo(Todo todo) async {
