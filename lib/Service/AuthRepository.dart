@@ -47,7 +47,6 @@ class AuthService {
     Map<String, dynamic> responseJson = jsonDecode(response.body);
     print("Token upon login: " + responseJson.toString());
     return responseJson['token'];
-    // return "token";
   }
 }
 
