@@ -21,12 +21,13 @@ class EditTodoViewState extends State<EditTodoView> {
   TextEditingController taskNameController;
   TextEditingController taskDescriptionController;
   bool isEditing = false;
-
+  DateTime currentDate;
   EditTodoViewState(this.todo);
 
   @override
   void initState() {
     super.initState();
+    currentDate = null;
     taskNameController = TextEditingController(text: todo.getName());
     taskDescriptionController =
         TextEditingController(text: todo.getDescription());
@@ -54,70 +55,40 @@ class EditTodoViewState extends State<EditTodoView> {
         children: [
           SizedBox(height: 15.0),
           Center(
-              child: FractionallySizedBox(
-            widthFactor: 0.95,
-            child: Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Text(todo.getName(),
+                  overflow: TextOverflow.visible,
+                  style: TextStyle(
+                      fontSize: 25, decoration: TextDecoration.underline))),
+          SizedBox(height: 20.0),
+          FractionallySizedBox(
+              widthFactor: 0.95,
+              child: Row(
                 children: [
-                  Text("Name:"),
+                  Icon(Icons.notes),
+                  Expanded(
+                      child: Container(
+                    margin: EdgeInsets.only(left: 10.0),
+                    child: Text(todo.getDescription(),
+                        style: TextStyle(fontSize: 20)),
+                  )),
+                ],
+              )),
+          SizedBox(height: 20.0),
+          FractionallySizedBox(
+              widthFactor: 0.95,
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today_outlined),
                   Container(
-                    decoration: BoxDecoration(
-                        border: Border(
-                            bottom: BorderSide(
-                                width: 1.0, color: Color(0xFF000000)))),
-                    child: Text(todo.getName()),
-                    // child: TextField(
-                    //   decoration: InputDecoration(
-                    //       contentPadding: EdgeInsets.fromLTRB(
-                    //           20.0, 15.0, 20.0, 15.0),
-                    //       hintText: "Name of Task",
-                    //       border: OutlineInputBorder(
-                    //           borderRadius:
-                    //           BorderRadius.circular(32.0))),
-                    //
-                    // ),
+                    margin: EdgeInsets.only(left: 10.0),
+                    child: Text(
+                        todo.getDateGoal() == null
+                            ? "No deadline set"
+                            : showDate(todo.getDateGoal()),
+                        style: TextStyle(fontSize: 20)),
                   )
-                ]),
-          )),
-          SizedBox(height: 15.0),
-          Center(
-              child: FractionallySizedBox(
-                  widthFactor: 0.95,
-                  child: Row(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Description: "),
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(
-                                    width: 1.0, color: Color(0xFF000000)))),
-                        child: Text(todo.getDescription()),
-                        // child: TextField(
-                        //   decoration: InputDecoration(
-                        //       contentPadding: EdgeInsets.fromLTRB(
-                        //           20.0, 15.0, 20.0, 15.0),
-                        //       hintText: "Name of Task",
-                        //       border: OutlineInputBorder(
-                        //           borderRadius:
-                        //           BorderRadius.circular(32.0))),
-                        //
-                        // ),
-                      )
-                    ],
-                  ))
-              // child: TextFormField(
-              //   controller: taskDescriptionController,
-              //   decoration: InputDecoration(
-              //       contentPadding:
-              //       EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              //       hintText: "Description",
-              //       border: OutlineInputBorder(
-              //           borderRadius: BorderRadius.circular(32.0))),
-              //   minLines: 4,
-              //   maxLines: 6,
-              // ),
-              ),
+                ],
+              ))
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -196,6 +167,25 @@ class EditTodoViewState extends State<EditTodoView> {
                   ),
                 ),
                 SizedBox(height: 15.0),
+                FractionallySizedBox(
+                    widthFactor: 0.9,
+                    child: Row(
+                      children: [
+                        Text("Deadline: " + (currentDate == null
+                            ? "No deadline set"
+                            : showDate(currentDate)), style: TextStyle(
+                            fontSize: 16),),
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () => selectDate(context),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close_rounded),
+                          onPressed: () => clearDate(context),
+                        ),
+                      ],
+                    )),
+                SizedBox(height: 15.0),
                 Material(
                   elevation: 5.0,
                   borderRadius: BorderRadius.circular(30.0),
@@ -206,10 +196,11 @@ class EditTodoViewState extends State<EditTodoView> {
                       if (formKey.currentState.validate()) {
                         showSnackBar(context, "Editing your task");
                       }
-                      BlocProvider.of<TodoCubit>(context).updateTodoNameAndDescription(
-                          todo,
-                          taskNameController.text,
-                          taskDescriptionController.text);
+                      BlocProvider.of<TodoCubit>(context)
+                          .updateTodoNameAndDescription(
+                              todo,
+                              taskNameController.text,
+                              taskDescriptionController.text);
                       taskNameController.text = '';
                       taskDescriptionController.text = '';
                       // setState(() {
@@ -226,6 +217,25 @@ class EditTodoViewState extends State<EditTodoView> {
             )));
   }
 
+  Future<void> selectDate(BuildContext context) async {
+    final DateTime pickedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2050));
+    if (pickedDate != null)
+      setState(() {
+        currentDate = pickedDate;
+      });
+  }
+
+
+  clearDate(BuildContext context) {
+    setState(() {
+      currentDate = null;
+    });
+  }
+
   void showSnackBar(BuildContext context, String message) {
     final snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -237,5 +247,13 @@ class EditTodoViewState extends State<EditTodoView> {
     taskNameController.dispose();
     taskDescriptionController.dispose();
     super.dispose();
+  }
+
+  String showDate(DateTime currentDate) {
+    return currentDate.day.toString() +
+        "/" +
+        currentDate.month.toString() +
+        "/" +
+        currentDate.year.toString();
   }
 }

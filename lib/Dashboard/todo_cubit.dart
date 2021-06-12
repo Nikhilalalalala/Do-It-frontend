@@ -21,7 +21,7 @@ class TodoCubit extends Cubit<TodoState> {
     }
   }
 
-  void createTodo(String name, String description, {String date_goal}) {
+  void createTodo(String name, String description, {DateTime date_goal}) {
     date_goal != null
         ? todoRepository.createTodo(name, description, date_goal: date_goal)
         : todoRepository.createTodo(name, description);

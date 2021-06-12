@@ -17,3 +17,5 @@ class LoginPasswordChanged extends LoginEvent {
 class LoginButtonClicked extends LoginEvent {}
 
 class LoginSubmissionReset extends LoginEvent {}
+
+class IntentionToCreateNewUser extends LoginEvent {}

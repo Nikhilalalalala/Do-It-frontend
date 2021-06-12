@@ -37,10 +37,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       // Logging in
     } else if (event is LoginButtonClicked) {
       try {
-        final String token = await authService.login(state.username, state.password);
+        final String token = await authService.login(state.username,
+            state.password);
         if (token == '' || token == null) {
           String error = "Invalid Username or Password";
-          yield state.copyWith(formSubmissionStatus: SubmissionFailed(Exception(error)));
+          yield state.copyWith(formSubmissionStatus:
+          SubmissionFailed(Exception(error)));
           yield LoginFailure(error: error);
         } else {
           authService.persistToken(token);
@@ -54,8 +56,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         yield LoginFailure(error: e.toString());
       }
     } else if (event is LoginSubmissionReset) {
-      yield state.copyWith(formSubmissionStatus: InitialFormStatus());
+      yield state.copyWith(username: '', password: '',
+          formSubmissionStatus: InitialFormStatus());
       yield LoginInitial();
+    } else if (event is IntentionToCreateNewUser) {
+      yield CreatingNewUserPageState();
     }
   }
 }

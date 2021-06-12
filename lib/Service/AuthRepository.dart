@@ -48,5 +48,20 @@ class AuthService {
     print("Token upon login: " + responseJson.toString());
     return responseJson['token'];
   }
+
+  static Future<String> createNewUser(String username, String email, String password) async {
+    http.Response response = await http.post(
+      Uri.http(mainUrl, "/api/users"),
+      headers: {"Accept": "application/json"},
+      body: jsonEncode(<String,String>
+      {
+        "username": username,
+        "password": password,
+        "email": email,
+      }),
+    );
+    Map<String, dynamic> responseJson = jsonDecode(response.body);
+    return responseJson['status'];
+  }
 }
 

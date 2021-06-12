@@ -9,7 +9,7 @@ class Todo {
   String name;
   String description;
   bool isDone;
-  String dateGoal;
+  DateTime dateGoal;
 
   Todo(
       {this.id = '',
@@ -36,12 +36,17 @@ class Todo {
       };
     } else {
       return {
-        "id" : id,
+        "id"
+            : id,
         "name": this.name,
         "description": this.description,
         "isDone": this.isDone.toString(),
       };
     }
+  }
+
+  String getDateGoalString() {
+    return dateGoal.toString();
   }
 
   String getName() {
@@ -56,7 +61,7 @@ class Todo {
   String getDescription() {
     return description;
   }
-  String getDateGoal() {
+  DateTime getDateGoal() {
     return dateGoal;
   }
   double getProgress() {
@@ -73,6 +78,10 @@ class Todo {
 
   void setDescription(String description) {
     this.description = description;
+  }
+
+  void setDateGoal(DateTime dateGoal) {
+    this.dateGoal = dateGoal;
   }
 
   @override
@@ -109,7 +118,7 @@ class TodoRepository {
     return todoList;
   }
 
-  void createTodo(String name, String description, {String date_goal}) async {
+  void createTodo(String name, String description, {DateTime date_goal}) async {
     String token = await AuthService.getToken();
     print(new Todo(name: name, description: description, dateGoal: date_goal).toDatabaseJson());
     http.Response response = await http.post(

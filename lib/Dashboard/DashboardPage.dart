@@ -29,7 +29,10 @@ class TaskBox extends StatelessWidget {
             onLongPress: () {
               // TODO LEAD TO SHOW OPTIONS
             },
-            child: Container(
+            child:
+
+
+            Container(
                 margin: EdgeInsets.all(5.0),
                 height: 50,
                 child: Row(children: [
@@ -79,8 +82,7 @@ class DashboardPage extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       child: BlocProvider(
-        create: (context) =>
-        TodoCubit()
+        create: (context) => TodoCubit()
           ..getTodos(),
         child: TasksView(),
       ),

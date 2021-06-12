@@ -13,6 +13,7 @@ class NewTodoViewState extends State<NewTodoView> {
   final formKey = GlobalKey<FormState>();
   final taskNameController = TextEditingController();
   final taskDescriptionController = TextEditingController();
+  DateTime currentDate;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,7 @@ class NewTodoViewState extends State<NewTodoView> {
                       controller: taskNameController,
                       decoration: InputDecoration(
                           contentPadding:
-                          EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                              EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                           hintText: "Name of Task",
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(32.0))),
@@ -57,7 +58,7 @@ class NewTodoViewState extends State<NewTodoView> {
                       controller: taskDescriptionController,
                       decoration: InputDecoration(
                           contentPadding:
-                          EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                              EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                           hintText: "Description",
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(32.0))),
@@ -67,6 +68,25 @@ class NewTodoViewState extends State<NewTodoView> {
                   ),
                 ),
                 SizedBox(height: 15.0),
+                FractionallySizedBox(
+                    widthFactor: 0.9,
+                    child: Row(
+                      children: [
+                        Text("Deadline: " + (currentDate == null
+                            ? "No deadline set"
+                            : showDate(currentDate)), style: TextStyle(
+                          fontSize: 16),),
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () => selectDate(context),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close_rounded),
+                          onPressed: () => clearDate(context),
+                        ),
+                      ],
+                    )),
+                SizedBox(height: 25.0),
                 Material(
                   elevation: 5.0,
                   borderRadius: BorderRadius.circular(30.0),
@@ -79,7 +99,7 @@ class NewTodoViewState extends State<NewTodoView> {
                       }
                       BlocProvider.of<TodoCubit>(context).createTodo(
                           taskNameController.text,
-                          taskDescriptionController.text);
+                          taskDescriptionController.text, date_goal: currentDate);
                       taskNameController.text = '';
                       taskDescriptionController.text = '';
                     },
@@ -93,6 +113,18 @@ class NewTodoViewState extends State<NewTodoView> {
             )));
   }
 
+  Future<void> selectDate(BuildContext context) async {
+    final DateTime pickedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2050));
+    if (pickedDate != null)
+      setState(() {
+        currentDate = pickedDate;
+      });
+  }
+
   void showSnackBar(BuildContext context, String message) {
     final snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -104,5 +136,19 @@ class NewTodoViewState extends State<NewTodoView> {
     taskNameController.dispose();
     taskDescriptionController.dispose();
     super.dispose();
+  }
+
+  String showDate(DateTime currentDate) {
+    return currentDate.day.toString() +
+        "/" +
+        currentDate.month.toString() +
+        "/" +
+        currentDate.year.toString();
+  }
+
+  clearDate(BuildContext context) {
+    setState(() {
+      currentDate = null;
+    });
   }
 }
