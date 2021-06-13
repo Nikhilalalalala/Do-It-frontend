@@ -35,6 +35,7 @@ dependencies:
   flutter_bloc: any
   flutter_secure_storage:
   equatable: any
+  intl: any
 
 dev_dependencies:
   flutter_test:

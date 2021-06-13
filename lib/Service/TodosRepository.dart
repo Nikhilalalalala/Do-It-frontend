@@ -4,6 +4,8 @@ import "dart:convert";
 import "package:http/http.dart" as http;
 import "dart:math" as Math;
 
+import 'package:intl/intl.dart';
+
 class Todo {
   String id;
   String name;
@@ -23,7 +25,7 @@ class Todo {
       name: data['name'],
       description: data['description'],
       isDone: data['isDone'] == null ? false : data['isDone'],
-      dateGoal: data['dateGoal'] ?? null);
+      dateGoal: data['date_goal'] == null ? null : DateTime.parse(data['date_goal']));
 
   Map<String, dynamic> toDatabaseJson() {
     if (this.dateGoal != null) {
@@ -32,12 +34,11 @@ class Todo {
         "name": this.name,
         "description": this.description,
         "isDone": this.isDone.toString(),
-        "dateGoal": this.dateGoal
+        "date_goal": DateFormat('yyyy-MM-dd').format(this.dateGoal),
       };
     } else {
       return {
-        "id"
-            : id,
+        "id" : id,
         "name": this.name,
         "description": this.description,
         "isDone": this.isDone.toString(),
@@ -88,7 +89,6 @@ class Todo {
   String toString() {
     return "Task: $name, $description, isDone? $isDone, dateGoal: $dateGoal";
   }
-
 }
 
 class TodoRepository {
@@ -113,8 +113,7 @@ class TodoRepository {
         todoList.add(Todo.fromDatabaseJson(element));
       });
     }
-    print("received todo list");
-    print(todoList);
+    print("received todo list" + todoList.toString());
     return todoList;
   }
 
@@ -132,20 +131,23 @@ class TodoRepository {
     print("Created Todo" + response.statusCode.toString());
   }
 
+
+  void updateTodoDateGoal(Todo todo, DateTime dateGoal) async {
+    todo.setDateGoal(dateGoal);
+    updateTodo(todo);
+  }
+
   void updateTodoIsDone(Todo todo, bool isDone) async {
-    String token = await AuthService.getToken();
     todo.setIsDone(isDone);
     updateTodo(todo);
   }
 
-  void updateTodoName(Todo todo, String newName)async {
-    String token = await AuthService.getToken();
+  void updateTodoName(Todo todo, String newName) async {
     todo.setName(newName);
     updateTodo(todo);
   }
 
-  void updateTodoDescription(Todo todo, String newDescription)async {
-    String token = await AuthService.getToken();
+  void updateTodoDescription(Todo todo, String newDescription) async {
     todo.setDescription(newDescription);
     updateTodo(todo);
   }
@@ -160,7 +162,7 @@ class TodoRepository {
         },
         body: jsonEncode(todo.toDatabaseJson())
     );
-    print("Sending req to update todo \n" +  jsonEncode(todo.toDatabaseJson()).toString());
+    print("Sending req to update todo: " +  jsonEncode(todo.toDatabaseJson()).toString());
   }
 
   void deleteTodo(Todo todo) async {
@@ -178,9 +180,11 @@ class TodoRepository {
     print(response);
   }
 
-  void updateTodoNameAndDescription(Todo todo, String name, String description) {
+  void updateTodoDetails(Todo todo, String name, String description, DateTime dateGoal) {
     todo.setDescription(description);
     todo.setName(name);
+    todo.setDateGoal(dateGoal);
+    print("Updated todo:" + todo.toString());
     updateTodo(todo);
   }
 

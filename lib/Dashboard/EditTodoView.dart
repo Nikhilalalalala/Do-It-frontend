@@ -21,13 +21,14 @@ class EditTodoViewState extends State<EditTodoView> {
   TextEditingController taskNameController;
   TextEditingController taskDescriptionController;
   bool isEditing = false;
-  DateTime currentDate;
+  DateTime currentDateGoal;
+
   EditTodoViewState(this.todo);
 
   @override
   void initState() {
     super.initState();
-    currentDate = null;
+    currentDateGoal = null;
     taskNameController = TextEditingController(text: todo.getName());
     taskDescriptionController =
         TextEditingController(text: todo.getDescription());
@@ -66,11 +67,14 @@ class EditTodoViewState extends State<EditTodoView> {
                 children: [
                   Icon(Icons.notes),
                   Expanded(
-                      child: Container(
+                      child: GestureDetector(
+                      onTap: () => changeToEditingMode(),
+                          child: Container(
+
                     margin: EdgeInsets.only(left: 10.0),
                     child: Text(todo.getDescription(),
                         style: TextStyle(fontSize: 20)),
-                  )),
+                  ))),
                 ],
               )),
           SizedBox(height: 20.0),
@@ -79,28 +83,33 @@ class EditTodoViewState extends State<EditTodoView> {
               child: Row(
                 children: [
                   Icon(Icons.calendar_today_outlined),
-                  Container(
+
+              GestureDetector(
+                onTap: () => changeToEditingMode(),
+                child: Container(
                     margin: EdgeInsets.only(left: 10.0),
                     child: Text(
                         todo.getDateGoal() == null
                             ? "No deadline set"
                             : showDate(todo.getDateGoal()),
                         style: TextStyle(fontSize: 20)),
-                  )
+                  ))
                 ],
               ))
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            isEditing = true;
-          });
-        },
+        onPressed: () => changeToEditingMode(),
         child: const Icon(Icons.edit),
         backgroundColor: Colors.blueAccent,
       ),
     );
+  }
+
+  void changeToEditingMode() {
+    setState(() {
+      isEditing = true;
+    });
   }
 
   Widget editingView(BuildContext context) {
@@ -171,10 +180,13 @@ class EditTodoViewState extends State<EditTodoView> {
                     widthFactor: 0.9,
                     child: Row(
                       children: [
-                        Text("Deadline: " + (currentDate == null
-                            ? "No deadline set"
-                            : showDate(currentDate)), style: TextStyle(
-                            fontSize: 16),),
+                        Text(
+                          "Deadline: " +
+                              (currentDateGoal == null
+                                  ? "No deadline set"
+                                  : showDate(currentDateGoal)),
+                          style: TextStyle(fontSize: 16),
+                        ),
                         IconButton(
                           icon: Icon(Icons.edit),
                           onPressed: () => selectDate(context),
@@ -196,11 +208,11 @@ class EditTodoViewState extends State<EditTodoView> {
                       if (formKey.currentState.validate()) {
                         showSnackBar(context, "Editing your task");
                       }
-                      BlocProvider.of<TodoCubit>(context)
-                          .updateTodoNameAndDescription(
-                              todo,
-                              taskNameController.text,
-                              taskDescriptionController.text);
+                      BlocProvider.of<TodoCubit>(context).updateTodoDetails(
+                          todo,
+                          taskNameController.text,
+                          taskDescriptionController.text,
+                          currentDateGoal);
                       taskNameController.text = '';
                       taskDescriptionController.text = '';
                       // setState(() {
@@ -225,14 +237,13 @@ class EditTodoViewState extends State<EditTodoView> {
         lastDate: DateTime(2050));
     if (pickedDate != null)
       setState(() {
-        currentDate = pickedDate;
+        currentDateGoal = pickedDate;
       });
   }
 
-
   clearDate(BuildContext context) {
     setState(() {
-      currentDate = null;
+      currentDateGoal = null;
     });
   }
 

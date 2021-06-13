@@ -19,20 +19,17 @@ class TaskBox extends StatelessWidget {
         key: Key(todo.getId()),
         background: Container(color: Colors.red),
         onDismissed: (direction) {
-          BlocProvider.of<TodoCubit>(context).deleteTodo(todo);
+          // BlocProvider.of<TodoCubit>(context).deleteTodo(todo);
         },
         child: GestureDetector(
             onTap: () {
-              BlocProvider.of<TodoCubit>(context).intentionToEditTodo(
-                  this.todo);
+              BlocProvider.of<TodoCubit>(context)
+                  .intentionToEditTodo(this.todo);
             },
             onLongPress: () {
               // TODO LEAD TO SHOW OPTIONS
             },
-            child:
-
-
-            Container(
+            child: Container(
                 margin: EdgeInsets.all(5.0),
                 height: 50,
                 child: Row(children: [
@@ -57,14 +54,14 @@ class TaskBox extends StatelessWidget {
                               textDirection: TextDirection.ltr,
                               style: todo.getIsDone()
                                   ? TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                                decoration: TextDecoration.lineThrough,
-                              )
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      decoration: TextDecoration.lineThrough,
+                                    )
                                   : TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                              ),
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                    ),
                             ),
                             CircularProgressIndicator(
                               value: todo.getProgress(),
@@ -82,8 +79,7 @@ class DashboardPage extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       child: BlocProvider(
-        create: (context) => TodoCubit()
-          ..getTodos(),
+        create: (context) => TodoCubit()..getTodos(),
         child: TasksView(),
       ),
     );
@@ -106,7 +102,6 @@ class TasksView extends StatelessWidget {
                 body: Container(
                     margin: EdgeInsets.only(top: 5),
                     child: ListView(children: createTaskList(state.todos))),
-
                 floatingActionButton: FloatingActionButton(
                   onPressed: () {
                     BlocProvider.of<TodoCubit>(context)
@@ -139,7 +134,6 @@ class TasksView extends StatelessWidget {
           }
         },
       ),
-
     );
   }
 
@@ -161,7 +155,6 @@ class TasksView extends StatelessWidget {
         title: Text('Dashboard'),
       ),
       body: Center(child: Text("You have no Tasks yet!")),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           BlocProvider.of<TodoCubit>(context).intentionToCreateNewTodo();
@@ -172,4 +165,3 @@ class TasksView extends StatelessWidget {
     );
   }
 }
-
