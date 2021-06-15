@@ -92,7 +92,7 @@ class Todo {
 }
 
 class TodoRepository {
-  static String mainUrl = "10.0.2.2:5000";
+  static final String mainUrl = "10.0.2.2:5000";
 
   Future<List<Todo>> getAllTodos() async {
     List<Todo> todoList = [];

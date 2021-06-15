@@ -68,13 +68,12 @@ class EditTodoViewState extends State<EditTodoView> {
                   Icon(Icons.notes),
                   Expanded(
                       child: GestureDetector(
-                      onTap: () => changeToEditingMode(),
+                          onTap: () => changeToEditingMode(),
                           child: Container(
-
-                    margin: EdgeInsets.only(left: 10.0),
-                    child: Text(todo.getDescription(),
-                        style: TextStyle(fontSize: 20)),
-                  ))),
+                            margin: EdgeInsets.only(left: 10.0),
+                            child: Text(todo.getDescription(),
+                                style: TextStyle(fontSize: 20)),
+                          ))),
                 ],
               )),
           SizedBox(height: 20.0),
@@ -83,17 +82,16 @@ class EditTodoViewState extends State<EditTodoView> {
               child: Row(
                 children: [
                   Icon(Icons.calendar_today_outlined),
-
-              GestureDetector(
-                onTap: () => changeToEditingMode(),
-                child: Container(
-                    margin: EdgeInsets.only(left: 10.0),
-                    child: Text(
-                        todo.getDateGoal() == null
-                            ? "No deadline set"
-                            : showDate(todo.getDateGoal()),
-                        style: TextStyle(fontSize: 20)),
-                  ))
+                  GestureDetector(
+                      onTap: () => changeToEditingMode(),
+                      child: Container(
+                        margin: EdgeInsets.only(left: 10.0),
+                        child: Text(
+                            todo.getDateGoal() == null
+                                ? "No deadline set"
+                                : showDate(todo.getDateGoal()),
+                            style: TextStyle(fontSize: 20)),
+                      ))
                 ],
               ))
         ],
